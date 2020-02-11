@@ -14,6 +14,6 @@ public class HelloController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "Service-A -> " + client.hello();
+        return "Servicea -> " + client.hello();
     }
 }
