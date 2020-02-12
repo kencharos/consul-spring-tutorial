@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: springcloudservice1
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        enabled: true
+      discovery:
+        enabled: true
