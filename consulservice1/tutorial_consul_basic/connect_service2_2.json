@@ -1,0 +1,14 @@
+{
+  "ID": "service2_2",
+  "Name": "service2",
+  "Address": "127.0.0.1",
+  "Port": 8082,
+  "Check": {
+    "DeregisterCriticalServiceAfter": "60m",
+    "HTTP": "http://127.0.0.1:8082/actuator/health",
+    "Interval": "5s"
+  },
+  "Connect": {
+    "SidecarService":{}
+  }
+}

@@ -6,14 +6,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HelloController {
 
-    private final ServiceBClient client;
+    private final Service2Client client;
 
-    public HelloController(ServiceBClient client) {
+    public HelloController(Service2Client client) {
         this.client = client;
     }
 
     @GetMapping("/hello")
     public String hello() {
-        return "Servicea -> " + client.hello();
+        return "Service1 -> " + client.hello();
     }
 }

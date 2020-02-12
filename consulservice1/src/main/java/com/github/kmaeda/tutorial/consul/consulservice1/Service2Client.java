@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(name = "serviceb", url = "${serviceb.url}")
-public interface ServiceBClient {
+@FeignClient(name = "service2", url = "${service2.url}")
+public interface Service2Client {
     @GetMapping(value="/hello", produces = "text/plain") String hello();
 }

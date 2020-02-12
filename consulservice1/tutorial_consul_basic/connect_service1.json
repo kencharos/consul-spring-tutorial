@@ -1,0 +1,21 @@
+{
+  "ID": "service1",
+  "Name": "service1",
+  "Address": "127.0.0.1",
+  "Port": 8080,
+  "Check": {
+    "DeregisterCriticalServiceAfter": "60m",
+    "HTTP": "http://127.0.0.1:8080/actuator/health",
+    "Interval": "5s"
+  },
+  "Connect": {
+    "SidecarService":{
+      "Proxy":{
+        "upstreams": [{
+          "destination_name": "service2",
+          "local_bind_port": 9000
+        }]
+      }
+    }
+  }
+}

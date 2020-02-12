@@ -1,2 +1,7 @@
-serviceb:
+service2:
   url: http://localhost:8081
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info, env
