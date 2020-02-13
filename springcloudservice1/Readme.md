@@ -34,4 +34,15 @@ consul kv put config/application/greeting/common service_update
 
 ## case 2, DiscoveryClient and SpringCloudGateway
 
+https://cloud.spring.io/spring-cloud-gateway/reference/html/#the-discoveryclient-route-definition-locator
+
+using DiscoveryClient Route Definition Locator.
+
 run springcloudgateway app.
+
+access
+
+http://<spring cloud gateawy adderss>/<consul service name>/<target service endpoint>
+
++ http://localhost:8099/springcloudservice1/hello
++ http://localhost:8099/springcloudservice2/hello

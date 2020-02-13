@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: sprnigcloudgateway
+  cloud:
+    # omit consul config, use default
+    gateway:
+      discovery: # use consul service discovery
+        locator:
+          enabled: true
+    loadbalancer:
+      ribbon:
+        enabled: false
