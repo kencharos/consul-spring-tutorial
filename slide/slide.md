@@ -251,7 +251,7 @@ Consul に標準で組み込まれている、サービス間通信を管理す�
 
 + L4プロキシ か L7プロキシ(envoy) をサービスごとにサイドカーとして起動し、サービス間通信で使用するローカルポートを提供
     + サービス間、負荷分散、死活監視はConsul側で提供
-    + 通信相手のサービスがどのノードにあってもローカルポートに繋げばConsulが解決する
+    + 通信相手のサービスがどのノード・ポートにあってもローカルポートに繋げばConsulが解決する
 + 通信経路は mTLSで暗号化、Consul クラスタ外からのアクセスは不可
 + Consul APIで通信許可を自由に設定できる
 + L7 Traffic Management, Mesh Gateway など機能強化により、高度なルーティングや複数DC間での通信もできるようになった
@@ -300,10 +300,122 @@ TODO 図
 + 複数ネットワークを横断してサービス情報を集約・管理するソフトウェア
     + どう使うは自分次第
 + 小規模でも大規模でも同じように使える
+    + 全てのAPIはローカルagentに対して実行
+    + node追加やサービスの増減に自動的に追従してくれる
 + 全ての機能にAPIがあり、API設計が綺麗
 + クラウドでもオンプレでも、一度導入してみても損はない
+    + 最初の導入(consul serverの準備や設定ファイル作成)はまあまあ大変
+    + nodeのagentインストールまでを自動化できれば、serverとagentがよしなにしてくれるので、クラスタの運用は放置でもあまり問題ない
+    
 
 ---
 
 # Spring Cloud Consul
 
+Consul と連携して、以下の機能を提供する
+
++ 設定ファイル,アノテーションにより Consulへのサービス登録・削除を自動化する
++ Consul で管理しているサービスに対して Service Discovery とクライアントサイドロードバランシングを提供し、*ライブラリ*としてサービス間通信を行う
++ Consul Key/Value Storage の内容を Spring Boot のプロパティとして使用できる(Distributed Configuration)
++ Spring Cloud Bus のバックエンドとしてConsulを使用し、Spring Boot アプリケーションの一括管理を行う(はず)
+    + 動作しなかったので紹介しません
+
+---
+
+# (参考)Spring Cloud Consul の代替
+
+同様の機能を提供するライブラリは他にもあるので、使用しているミドルウェアに合わせて選択可能
+
+## Service Discovery
+
++ Spring Cloud Zookeeper
++ Spring Cloud Netflix(Eureka)
+    + Eurekaは今でもSpring Cloudでサポート中
+
+## Distributed Configuration
+
++ Spring Cloud Zookeeper
++ Spring Cloud Config
+
+---
+
+# Service Mesh とライブラリ
+
+どちらもサービス間通信のためのソリューションだが、実現方法に違いがある。
+機能をアプリケーションの外と中のどちらに置くか。
+
+TODO 図
+
+---
+
+# Service Mesh とライブラリ
+
+---
+
+# Spring Cloud Consul を始める
+
+dependency
+
+---
+
+# Spring Cloud Consul を始める
+
+bootstrap.yml
+
+---
+
+# Service Disovery, Discovery Client, Spring Load Balancer
+
+bootstrap.yml
+
+
+---
+
+# Distributed Configuration
+
+bootstrap.yml
+
+---
+
+# profile,優先度
+
+bootstrap.yml
+
+---
+
+# リフレッシュスコープ
+
+bootstrap.yml
+
+---
+
+# Demo - Spring Cloud Consul
+
+bootstrap.yml
+
+---
+
+# Spring Cloud Gateway + Service Discovery
+
+bootstrap.yml
+
+---
+
+# まとめ
+
++ Consul で分散システムのサービス情報を管理できる
++ Spring Cloud Consul で動的なサービス間通信と、設定の管理ができる
++ 分散システムやマイクロサービスの設計を始めるときに、導入を検討してみませんか
+
+---
+
+# (おまけ) Consul を本番で使うためには
+
++ エージェント間通信やAPIを暗号化するためにTLS必須
++ Consulが使用するポートは結構多いのでFirewallの設定に抜けがないように
++ デフォルトでは全ての操作は認証無しで利用可能
+    + ACL(ポリシーとトークン)を有効にして、使用可能なAPIを最小限にする
++ パスワードなどの機密情報を Key/Value Storage に置かない
+    + 機密情報管理のためのソフトウェア Hashicorp Valut などを検討する
+        + 機密情報を安全に配布する他、 Consul ACL を AWS IAM などの他の認証機構と連携するなど、より高度なポリシー制御ができる
+    + Spring Cloud Valut という Valut 連携ライブラリもある
