@@ -470,31 +470,110 @@ RestTemplate/WebClient の場合は `@Bean` と一緒に `@LoadBlanced` を付�
 
 # Distributed Configuration
 
-bootstrap.yml
+Consul の Key/Value Storage を Spring Boot のプロパティとして使う機能
+`config/<サービス名>/<プロパティ>` に値を設定すると、起動時にConsulから取得する 
+
+``` bash
+# springcloudservice2 サービスの greeting.service2 にB-1を設定
+consul kv put config/springcloudservice2/greeting/service2 B-1
+```
+
+`@Value` や ConfigurationPropertiesから参照可能
+
+```
+@RestController
+public class Hello2Controller {
+    // B-2がインジェクション
+    @Value("${greeting.service2}") String greeting;
+
+    @GetMapping(value = "/hello", produces = "text/plain")
+    public String greeting() {
+        return greeting;
+    }
+}
+```
 
 ---
 
-# profile,優先度
+# application, プロファイル, 優先度
 
-bootstrap.yml
+サービス名=applicationのプロパティは全サービスで共通で参照可能
+ローカルのプロパティをconsulの設定で上書きできるので、クラウドなどの実行環境固有の設定をJarに含めなくてよくなる。
+#### プロパティの優先度
+
+1. 環境変数
+1. consul - connfig/<サービス名>,<プロファイル>/
+1. consul - connfig/<サービス名>/
+1. consul - connfig/applicationn,<プロファイル>/
+1. consul - connfig/applicationn/
+1. ローカル - allication.yaml
+
+---
+
+# Key/Value Storageのフォーマット
+bootstrap.yaml の以下のformat設定で、値に設定するフォーマットを変更できる
+```
+spring.cloud.consul.config.format: YAML|PROPERTIES|FILES|KEY_VALUE(default)
+```
+
+### YAML, PROPERTIES
+`config/<サービス名><,PROFILE>/data` キーに、yaml　またはproperties 形式で複数の値をまとめて設定できる
+
+### FILES
+`config/<サービス名><-PROFILE>.yml(.properties)` のキーで設定ファイルの内容そのものを値に設定できる。
+Key/Value Storageに設定する内容をgitで管理し、デプロイ時に反映する場合などに便利
 
 ---
 
 # リフレッシュスコープ
 
-bootstrap.yml
+Consulから取得したプロパティは、`@RefreshScope` を付与したBeanについて、Key/Value Storage の値を更新するとBeanのリフレッシュ(DIのやり直し)する
++ 自動的にリフレッシュするか、明示的に `actuator/refresh` を実行するか、無効にするか設定で選択できる
++ ConfigurationProperies は暗黙的に RefreshScope に含まれる
 
----
+```
+@RestController
+@RefreshScope
+public class Hello2Controller {
+    // @RefreshScopeにより、KVSの変更時にリフレッシュされる
+    @Value("${greeting.service2}") String greeting;
 
-# Demo - Spring Cloud Consul
-
-bootstrap.yml
+    @GetMapping(value = "/hello", produces = "text/plain")
+    public String greeting() {
+        return  greeting;
+    }
+}
+```
 
 ---
 
 # Spring Cloud Gateway + Service Discovery
 
-bootstrap.yml
+Spring Cloud Gateway の DiscoveryClient 連携を使用すると、
+Spring Cloud Gateway から `<サービス名>/<各サービスのエンドポイント>` で、各サービスに接続できる。
+API Gatewayとして各サービスの接続の統合や認証の一元化などに期待できる
+```
+spring:
+  application:
+    name: sprnigcloudgateway
+  cloud:
+    gateway:
+      discovery: # use consul service discovery
+        locator:
+          enabled: true
+```
+
+
+---
+
+# Demo2 - Spring Cloud Consul
+
++ ServiceDiscovery によるサービス間接続
++ Key/Value Storage によるプロパティ設定とリフレッシュ
++ Spring Cloud Gateway 連携
++ https://github.com/kencharos/consul-spring-tutorial/tree/master/springcloudservice1
+
+TODO 図
 
 ---
 
