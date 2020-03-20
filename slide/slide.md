@@ -123,7 +123,9 @@ https://www.consul.io
 ---
 # Consul クラスタの構成
 
-図
+奇数のConsul Serverとスケール可能なAgent nodeからクラスタを構成
+各nodeのサービスの情報をAgentに登録し、Server経由でクラスタ内で共有する
+![](images/ConsulArchtecture.png)
 
 ---
 
