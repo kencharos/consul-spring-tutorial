@@ -305,7 +305,7 @@ TODO 図
 + 全ての機能にAPIがあり、API設計が綺麗
 + クラウドでもオンプレでも、一度導入してみても損はない
     + 最初の導入(consul serverの準備や設定ファイル作成)はまあまあ大変
-    + nodeのagentインストールまでを自動化できれば、serverとagentがよしなにしてくれるので、クラスタの運用は放置でもあまり問題ない
+    + nodeのagentインストールまでを自動化できれば、serverとagentは自動的にクラスタを維持するので運用は難しくない
     
 
 ---
@@ -339,35 +339,132 @@ Consul と連携して、以下の機能を提供する
 
 ---
 
-# Service Mesh とライブラリ
+# (参考)サービスメッシュとライブラリ
 
-どちらもサービス間通信のためのソリューションだが、実現方法に違いがある。
-機能をアプリケーションの外と中のどちらに置くか。
+どちらもサービス間通信のための機能だが、機能をアプリケーションの外と中のどちらに置くかが異なる
 
 TODO 図
 
 ---
 
-# Service Mesh とライブラリ
+# (参考)サービスメッシュ とライブラリの比較
+
+|項目|サービスメッシュ| ライブラリ| 
+|---|---|---|
+|主な製品|Istio, Consul Connect, Dapr|Spring Cloud Consul/Eureka  |
+実現方法| Sidecar Proxyによる通信仲介 |プロセス中に組み込み |
+|メリット|サービスと疎結合<br>他言語に対応できる<br>プロキシに接続すれば通信可能 | 導入が容易<br>サービス間直接通信 |
+|デメリット|サービスメッシュ基盤が必要<br>分散トレースの伝播不可<br>ホップ数が増える |言語・フレームワークが固定<br>ライブラリのAPIを使う必要がある<br>サービスごとに設定や導入が必要   |
+
+システムの規模、構成に合わせてどちらを採用するかを検討
 
 ---
 
 # Spring Cloud Consul を始める
 
-dependency
+Spring Cloud Consulの依存性を追加する
+```
+ext {
+  set('springCloudVersion', "Hoxton.SR1")
+}
+
+dependencyManagement {
+  imports {
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+  }
+}
+
+dependencies {
+  // 全ての機能を使用する場合
+  implementation 'org.springframework.cloud:spring-cloud-starter-consul-all'
+  // 機能を個別に選択する場合
+  implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+  implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+  //implementation 'org.springframework.cloud:spring-cloud-starter-consul-bus'
+}
+```
 
 ---
 
-# Spring Cloud Consul を始める
+# Spring Cloud Consul を設定する
 
-bootstrap.yml
+bootstrap.ymlと `spring.application.name` が必須
+
+```
+spring:
+  application:
+    name: springcloudservice1
+  # 以下はデフォルト設定なので省略可能
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+```
+依存性と上記設定だけで以下の処理が自動的に行われる。
+
++ Spring Boot 起動時に`spring.application.name` の値でConsulにサービス登録
++ Spring Boot Actuatorの healthエンドポイントに対してヘルスチェック設定
++ Spring Boot 終了時に Consulからサービス削除
++ bootstrap.ymlの設定でカスタマイズ可能
+---
+
+# Service Discovery - Discovery Client 
+
+サービス名を与えるとアドレス一覧を取得する DiscoveryClient が使用可能。
+Consulからアドレスを取得していて、Consul Watch により最新の状態に同期される。
+
+```java
+    @Autowired
+    DiscoveryClient discovery;
+
+    public void getService() {
+        // springcloudservice2 サービスのアドレス一覧を取得
+        discovery.getInstances("springcloudservice2")
+            .forEach(srv -> 
+                System.out.println(srv.getHost() +":" + srv.getPort()));
+    }
+```
 
 ---
 
-# Service Disovery, Discovery Client, Spring Load Balancer
+# Spring Cloud LoadBalancer(1)
 
-bootstrap.yml
+DiscoveryClient を使用してクライアントサイドロードバランシングを行う、
+Spring Cloud LoadBalancerも使用できる。
+RestTemplate, WebClient, OpenFeignなどに組み込み、URLにサービス名を与えることで当該サービスのアドレス一覧に対してラウンドロビンで通信を行う
 
+OpenFeign など 宣言型HTTPクライアントの場合は、`@LoadBalancerClient` を使い、URL設定にサービス名を付与
+
+```java
+@LoadBalancerClient // DiscoveryClientを組み込むアノテーション
+@FeignClient("springcloudservice2") // URLの代わりにサービス名
+public interface Service2Client {
+    @GetMapping(value = "/hello", produces = "text/plain")
+    String hello2();
+}
+```
+---
+# Spring Cloud LoadBalancer(2)
+
+RestTemplate/WebClient の場合は `@Bean` と一緒に `@LoadBlanced` を付与し、HTTPアクセス時にホスト名にサービス名を設定する
+
+```java
+    @LoadBalanced
+    @Bean
+    public WebClient.Builder loadBalancedWebClientBuilder() {
+		return WebClient.builder();
+    }
+
+    @Autowired WebClient.Builder builder;
+
+    public void fetch() {
+        // ホスト名にサービス名を与えると、DiscoveryClientからアドレス解決する
+        builder.build().get()
+            .uri("http://springcloudservice2/hello2").exchange();
+    }
+```
+
+さらに、`@LoadBalancerClient` を使用してWebClinetインスタンスを事前に構築する方法もある(https://spring.io/guides/gs/spring-cloud-loadbalancer/)
 
 ---
 
