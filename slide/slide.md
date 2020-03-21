@@ -124,7 +124,7 @@ https://www.consul.io
 # Consul クラスタの構成
 
 奇数のConsul Serverとスケール可能なAgent nodeからクラスタを構成
-各nodeのサービスの情報をAgentに登録し、Server経由でクラスタ内で共有する
+各nodeのサービスの情報をAgentに登録し、Server経由でクラスタ内で共有するgit
 ![](images/ConsulArchtecture.png)
 
 ---
@@ -292,8 +292,7 @@ public interface Service2Client {
 + 手動でSpring Bootサービスの登録、Connectによる通信
 + https://github.com/kencharos/consul-spring-tutorial/blob/master/consulservice1/tutorial_consul_basic/readme.md
 + ローカルで試すには `consul agent --dev` で全設定有効のServer兼Agentが起動
-
-TODO 図
+![](images/ConsulConnect.png)
 
 ---
 
@@ -345,7 +344,7 @@ Consul と連携して、以下の機能を提供する
 
 どちらもサービス間通信のための機能だが、機能をアプリケーションの外と中のどちらに置くかが異なる
 
-TODO 図
+![](images/ServiceMesh.png)
 
 ---
 
@@ -574,8 +573,7 @@ spring:
 + Key/Value Storage によるプロパティ設定とリフレッシュ
 + Spring Cloud Gateway 連携
 + https://github.com/kencharos/consul-spring-tutorial/tree/master/springcloudservice1
-
-TODO 図
+![](images/SpringCloudConsul.png)
 
 ---
 
