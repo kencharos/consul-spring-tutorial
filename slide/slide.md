@@ -94,7 +94,7 @@ Spring Cloud Consul を活用するには、Consul の理解が欠かせない�
 
 ---
 
-# ![h:60px](images/consul.png) HashiCorp Consul について 
+# ![h:100px](images/consul.png) HashiCorp Consul について 
 
 https://www.consul.io
 分散システム上のサービス管理を行うソフトウェア
