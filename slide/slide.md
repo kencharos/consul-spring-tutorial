@@ -56,7 +56,7 @@ style: |
 
 # *Consul/Spring Cloud Consul 入門*
 
-2020/3/24
+2020/4/8
 Kentaro Maeda @ LINE
 
 #JSUG
