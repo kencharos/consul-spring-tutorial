@@ -86,7 +86,8 @@ Kentaro Maeda @ LINE
 
 https://spring.io/projects/spring-cloud-consul より、
 
-Spring Cloud Consul は HashiCorp Consul と連携して、Spring Boot に大規模分散システムを構築するための機能として Service Discovery, Distributed Configuration, Control Bus を提供する。
+Spring Cloud Consul は HashiCorp Consul と連携して、Spring Boot に大規模分散システムを構築するための機能として Service Discovery, 
+Distributed Configuration, Control Bus を提供する。
 
 Spring Cloud Consul で提供される機能は Consul の機能であり、
 Spring Cloud Consul を活用するには、Consul の理解が欠かせない。
@@ -124,7 +125,7 @@ https://www.consul.io
 # Consul クラスタの構成
 
 奇数のConsul Serverとスケール可能なAgent nodeからクラスタを構成
-各nodeのサービスの情報をAgentに登録し、Server経由でクラスタ内で共有するgit
+各nodeのサービスの情報をAgentに登録し、Server経由でクラスタ内で共有する
 ![](images/ConsulArchtecture.png)
 
 ---
@@ -287,7 +288,7 @@ public interface Service2Client {
 
 ---
 
-# Demo - Consul, Connsul Connect
+# Demo - Consul, Consul Connect
 
 + 手動でSpring Bootサービスの登録、Connectによる通信
 + https://github.com/kencharos/consul-spring-tutorial/blob/master/consulservice1/tutorial_consul_basic/readme.md
@@ -503,10 +504,10 @@ public class Hello2Controller {
 #### プロパティの優先度
 
 1. 環境変数
-1. consul - connfig/<サービス名>,<プロファイル>/
-1. consul - connfig/<サービス名>/
-1. consul - connfig/applicationn,<プロファイル>/
-1. consul - connfig/applicationn/
+1. consul - config/<サービス名>,<プロファイル>/
+1. consul - config/<サービス名>/
+1. consul - config/application,<プロファイル>/
+1. consul - config/application/
 1. ローカル - allication.yaml
 
 ---
